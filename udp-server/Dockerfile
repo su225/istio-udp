@@ -7,4 +7,4 @@ WORKDIR /app
 
 COPY udp.py ./
 
-ENTRYPOINT [ "python", "./udp.py"]
+ENTRYPOINT [ "python", "-u", "./udp.py"]
