@@ -1,0 +1,34 @@
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: istio-udp
+spec:
+  profile: minimal
+  hub: localhost:5000
+  tag: istio-udp
+  meshConfig:
+    accessLogFile: /dev/stdout
+    defaultConfig:
+      proxyMetadata:
+        ISTIO_META_PROXY_XDS_VIA_AGENT: "true"
+        ISTIO_META_DNS_CAPTURE: "true"
+  components:
+    ingressGateways:
+    - name: istio-ingressgateway
+      enabled: true
+      k8s:
+        service:
+          ports:
+          - name: tcp
+            port: 5000
+            targetPort: 5000
+          - name: udp
+            port: 5000
+            targetPort: 5000
+            protocol: UDP
+  values:
+    global:
+      proxy:
+        logLevel: debug
+      logging:
+        level: "all:debug"
