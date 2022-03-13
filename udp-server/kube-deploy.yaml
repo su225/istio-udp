@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: udp-echo-v1
+  labels:
+    app: udp-echo
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: udp-echo
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: udp-echo
+        version: v1
+    spec:
+      containers:
+      - name: udp-echo
+        image: "localhost:5000/udp-echo:app"
+        imagePullPolicy: Always
+        env:
+        - name: SERVER_VERSION
+          value: "v1"
+        - name: SERVER_PORT
+          value: "2000"
+        ports:
+        - containerPort: 2000
+      - name: tcp-echo
+        image: "docker.io/istio/tcp-echo-server:1.2"
+        imagePullPolicy: IfNotPresent
+        args: ["2000", "v1 "]
+        ports:
+        - containerPort: 2000
+          protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: udp-echo-v2
+  labels:
+    app: udp-echo
+    version: v2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: udp-echo
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: udp-echo
+        version: v2
+    spec:
+      containers:
+      - name: udp-echo
+        image: "localhost:5000/udp-echo:app"
+        imagePullPolicy: Always
+        env:
+        - name: SERVER_VERSION
+          value: "v2"
+        - name: SERVER_PORT
+          value: "2000"
+        ports:
+        - containerPort: 2000
+          protocol: UDP
+      - name: tcp-echo
+        image: "docker.io/istio/tcp-echo-server:1.2"
+        imagePullPolicy: IfNotPresent
+        args: ["2000", "v2 "]
+        ports:
+        - containerPort: 2000
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: echo
+  labels:
+    app: udp-echo
+spec:
+  selector:
+    app: udp-echo
+  ports:
+  - name: udp-echo
+    protocol: UDP
+    port: 2020
+    targetPort: 2000
+  - name: tcp-echo
+    protocol: TCP
+    port: 2020
+    targetPort: 2000
